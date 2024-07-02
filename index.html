@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz: How to Build a PC</title>
+    <title>PC Building Quiz</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Quiz: How to Build a PC</h1>
-        <p id="welcome-message">Welcome! Ready to test your PC building skills? Let the fun begin!</p>
-    </header>
-    <main>
-        <div id="score-container">
-            <h2>Score: <span id="score">0</span></h2>
+    <div class="quiz-container">
+        <h1>Welcome to the PC Building Quiz!</h1>
+        
+        <div class="question-container" id="question-container">
+            <div class="question" id="question"></div>
+            <div class="answers" id="answers"></div>
         </div>
-        <div id="quiz-container">
-            <div id="question-container"></div>
-            <div id="answer-buttons" class="btn-container"></div>
+
+        <div class="score">
+            <p>Score: <span id="score">0</span></p>
         </div>
-    </main>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

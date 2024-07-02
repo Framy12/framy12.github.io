@@ -1,162 +1,174 @@
 const questions = [
     {
-        question: 'What is the first component to install in a PC case?',
+        question: "What component is essential for processing data in a PC?",
         answers: [
-            { text: 'A: The power supply', correct: false },
-            { text: 'B: The motherboard', correct: true },
-            { text: 'C: The graphics card', correct: false }
+            { text: "CPU", correct: true },
+            { text: "GPU", correct: false },
+            { text: "RAM", correct: false }
         ]
     },
     {
-        question: 'Which component stores all your data?',
+        question: "What component stores your data permanently?",
         answers: [
-            { text: 'A: The RAM', correct: false },
-            { text: 'B: The processor', correct: false },
-            { text: 'C: The hard drive/SSD', correct: true }
+            { text: "SSD", correct: true },
+            { text: "RAM", correct: false },
+            { text: "Power Supply", correct: false }
         ]
     },
     {
-        question: 'What is the function of a heat sink?',
+        question: "Which component is responsible for rendering graphics?",
         answers: [
-            { text: 'A: To cool the processor', correct: true },
-            { text: 'B: To store data', correct: false },
-            { text: 'C: To supply power to components', correct: false }
+            { text: "GPU", correct: true },
+            { text: "CPU", correct: false },
+            { text: "Motherboard", correct: false }
         ]
     },
     {
-        question: 'Which component is responsible for video output?',
+        question: "Which component supplies power to all other components?",
         answers: [
-            { text: 'A: The graphics card', correct: true },
-            { text: 'B: The motherboard', correct: false },
-            { text: 'C: The power supply', correct: false }
+            { text: "Power Supply", correct: true },
+            { text: "Motherboard", correct: false },
+            { text: "CPU", correct: false }
         ]
     },
     {
-        question: 'Which component determines the overall speed of the system?',
+        question: "What component is considered the 'brain' of the computer?",
         answers: [
-            { text: 'A: The processor', correct: true },
-            { text: 'B: The case', correct: false },
-            { text: 'C: The power supply', correct: false }
+            { text: "CPU", correct: true },
+            { text: "RAM", correct: false },
+            { text: "Hard Drive", correct: false }
         ]
     }
 ];
 
 let currentQuestionIndex = 0;
 let score = 0;
-let moveAttempts = 0;
 
-const questionContainer = document.getElementById('question-container');
-const answerButtons = document.getElementById('answer-buttons');
-const scoreDisplay = document.getElementById('score');
-const messages = [
-    "Are you sure?",
-    "Are you 100% sure?",
-    "If you select this one you can't change it.",
-    "Think twice!",
-    "Is this your final answer?",
-    "Take a deep breath!",
-    "Double check your answer!",
-    "This is tricky!",
-    "Last chance to change!",
-    "Go ahead, if you're confident!"
-];
+document.addEventListener("DOMContentLoaded", () => {
+    showQuestion();
+});
 
-document.addEventListener('DOMContentLoaded', startQuiz);
+function showQuestion() {
+    clearQuestion();
+    const questionData = questions[currentQuestionIndex];
+    const questionElement = document.getElementById("question");
+    questionElement.textContent = questionData.question;
 
-function startQuiz() {
-    showQuestion(questions[currentQuestionIndex]);
-}
-
-function showQuestion(question) {
-    questionContainer.innerText = question.question;
-    answerButtons.innerHTML = '';
-    question.answers.forEach(answer => {
-        const button = document.createElement('button');
-        button.innerText = answer.text;
-        button.classList.add('btn');
-        button.addEventListener('click', () => selectAnswer(answer, button));
-        answerButtons.appendChild(button);
+    const answersElement = document.getElementById("answers");
+    questionData.answers.forEach((answer, index) => {
+        const button = document.createElement("button");
+        button.textContent = `${String.fromCharCode(65 + index)}. ${answer.text}`;
+        button.classList.add("button");
+        button.onclick = () => selectAnswer(answer, button);
+        answersElement.appendChild(button);
     });
 }
 
+function clearQuestion() {
+    const questionElement = document.getElementById("question");
+    questionElement.textContent = "";
+
+    const answersElement = document.getElementById("answers");
+    answersElement.innerHTML = "";
+}
+
 function selectAnswer(answer, button) {
-    if (currentQuestionIndex === questions.length - 2 && answer.correct && moveAttempts < 10) {
-        moveButton(button);
-        showMessage();
+    if (answer.correct) {
+        score += 10;
+        button.classList.add("correct-answer");
     } else {
-        if (answer.correct) {
-            score += 10;
-        } else {
-            score -= 5;
-        }
-        scoreDisplay.innerText = score;
-        currentQuestionIndex++;
-        if (currentQuestionIndex < questions.length) {
-            showQuestion(questions[currentQuestionIndex]);
-        } else {
-            showScore();
-        }
+        score -= 5;
     }
+
+    document.getElementById("score").textContent = score;
+
+    setTimeout(() => {
+        if (currentQuestionIndex === questions.length - 1 && answer.correct) {
+            setupTrickButton();
+        } else {
+            nextQuestion();
+        }
+    }, 500);
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        showQuestion();
+    } else {
+        showFinalMessage();
+    }
+}
+
+function setupTrickButton() {
+    const answersElement = document.getElementById("answers");
+    const correctButton = Array.from(answersElement.children).find(button => button.textContent.includes("CPU")); // Assuming CPU is the correct answer for the last question
+    correctButton.classList.add("moving-button");
+    let clickCount = 0;
+
+    correctButton.onclick = () => {
+        if (clickCount < 10) {
+            moveButton(correctButton);
+            showWarningMessage(clickCount);
+            clickCount++;
+        } else {
+            correctButton.classList.remove("moving-button");
+            score += 10;
+            document.getElementById("score").textContent = score;
+            showMotivationalMessage();
+            setTimeout(showFinalMessage, 2000);
+        }
+    };
 }
 
 function moveButton(button) {
-    const minDistance = 100; // Minimum distance from other buttons
-    let newX, newY, validPosition;
-    const maxAttempts = 50; // Maximum number of attempts to find a valid position
-    let attempts = 0;
+    const container = document.querySelector(".quiz-container");
+    const containerRect = container.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    const maxLeft = containerRect.width - buttonRect.width;
+    const maxTop = containerRect.height - buttonRect.height;
 
+    let newLeft, newTop;
     do {
-        validPosition = true;
-        newX = Math.random() * 80 + 10; // Random position between 10% and 90% horizontally
-        newY = Math.random() * 80 + 10; // Random position between 10% and 90% vertically
+        newLeft = Math.random() * maxLeft;
+        newTop = Math.random() * maxTop;
+    } while (Math.abs(newLeft - buttonRect.left) < 50 && Math.abs(newTop - buttonRect.top) < 50);
 
-        // Check if the new position is too close to any existing button
-        document.querySelectorAll('.btn').forEach(existingButton => {
-            const rect = existingButton.getBoundingClientRect();
-            const buttonX = rect.left + rect.width / 2;
-            const buttonY = rect.top + rect.height / 2;
-
-            const distance = Math.sqrt(Math.pow(buttonX - newX, 2) + Math.pow(buttonY - newY, 2));
-            if (distance < minDistance) {
-                validPosition = false;
-            }
-        });
-
-        attempts++;
-    } while (!validPosition && attempts < maxAttempts);
-
-    if (validPosition) {
-        button.style.position = 'absolute';
-        button.style.left = `${newX}%`;
-        button.style.top = `${newY}%`;
-        moveAttempts++;
-    } else {
-        // If a valid position is not found, do not move the button to avoid infinite loop
-        console.warn("Could not find a valid position for the button after multiple attempts.");
-    }
+    button.style.left = `${newLeft}px`;
+    button.style.top = `${newTop}px`;
 }
 
-function showMessage() {
-    const message = document.createElement('div');
-    message.classList.add('message');
-    message.innerText = messages[moveAttempts - 1];
-    document.body.appendChild(message);
-    message.style.display = 'block';
-    setTimeout(() => {
-        message.style.display = 'none';
-        document.body.removeChild(message);
-    }, 2000);
+function showWarningMessage(clickCount) {
+    const messages = [
+        "Are you sure?",
+        "Are you 100% sure?",
+        "If you select this one you can't change it.",
+        "Really?",
+        "Think twice!",
+        "This is your last chance!",
+        "Don't give up!",
+        "Keep going!",
+        "Almost there!",
+        "Final try!"
+    ];
+    const message = messages[clickCount];
+    const questionContainer = document.getElementById("question-container");
+    const warningMessage = document.createElement("div");
+    warningMessage.textContent = message;
+    warningMessage.classList.add("message");
+    questionContainer.appendChild(warningMessage);
+    setTimeout(() => questionContainer.removeChild(warningMessage), 1000);
 }
 
-function showScore() {
-    questionContainer.innerText = 'Quiz completed!';
-    answerButtons.innerHTML = '';
-    const finalScore = document.createElement('p');
-    finalScore.innerText = `Your final score is ${score}`;
-    questionContainer.appendChild(finalScore);
-    if (moveAttempts >= 10) {
-        const motivationalMessage = document.createElement('p');
-        motivationalMessage.innerText = "Never give up! If you are trying to make your dreams come true, it doesn't matter how many times you try. If you don't give up, trust me, you are going to achieve it!";
-        questionContainer.appendChild(motivationalMessage);
-    }
+function showMotivationalMessage() {
+    const questionContainer = document.getElementById("question-container");
+    const motivationalMessage = document.createElement("div");
+    motivationalMessage.textContent = "Never give up! If you are trying to make your dreams come true, it doesn't matter how many times you try. If you don't give up, trust me, you are going to get it!";
+    motivationalMessage.classList.add("message");
+    questionContainer.appendChild(motivationalMessage);
+}
+
+function showFinalMessage() {
+    const questionContainer = document.getElementById("question-container");
+    questionContainer.innerHTML = "<p>Congratulations! You've completed the quiz.</p>";
 }
