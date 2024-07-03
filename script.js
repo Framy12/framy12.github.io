@@ -43,6 +43,7 @@ const questions = [
 
 let currentQuestionIndex = 0;
 let score = 0;
+let quizEnded = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     showQuestion();
@@ -73,22 +74,23 @@ function clearQuestion() {
 }
 
 function selectAnswer(answer, button) {
+    if (quizEnded) return;
+
     if (answer.correct) {
         score += 10;
         button.classList.add("correct-answer");
+        document.getElementById("score").textContent = score;
+
+        if (currentQuestionIndex === questions.length - 1) {
+            setTimeout(setupTrickButton, 300);
+        } else {
+            setTimeout(nextQuestion, 300); // Reducido a 300ms para una transición más rápida
+        }
     } else {
         score -= 5;
+        document.getElementById("score").textContent = score;
+        setTimeout(nextQuestion, 300);
     }
-
-    document.getElementById("score").textContent = score;
-
-    setTimeout(() => {
-        if (currentQuestionIndex === questions.length - 1 && answer.correct) {
-            setupTrickButton();
-        } else {
-            nextQuestion();
-        }
-    }, 500);
 }
 
 function nextQuestion() {
@@ -102,7 +104,7 @@ function nextQuestion() {
 
 function setupTrickButton() {
     const answersElement = document.getElementById("answers");
-    const correctButton = Array.from(answersElement.children).find(button => button.textContent.includes("CPU")); // Assuming CPU is the correct answer for the last question
+    const correctButton = Array.from(answersElement.children).find(button => button.textContent.includes("CPU")); // Asumiendo que CPU es la respuesta correcta para la última pregunta
     correctButton.classList.add("moving-button");
     let clickCount = 0;
 
@@ -116,7 +118,8 @@ function setupTrickButton() {
             score += 10;
             document.getElementById("score").textContent = score;
             showMotivationalMessage();
-            setTimeout(showFinalMessage, 2000);
+            quizEnded = true; // Marcar el quiz como terminado
+            clearQuestion(); // Limpiar las respuestas
         }
     };
 }
@@ -153,22 +156,31 @@ function showWarningMessage(clickCount) {
     ];
     const message = messages[clickCount];
     const questionContainer = document.getElementById("question-container");
+    clearWarningMessages();
     const warningMessage = document.createElement("div");
     warningMessage.textContent = message;
     warningMessage.classList.add("message");
     questionContainer.appendChild(warningMessage);
-    setTimeout(() => questionContainer.removeChild(warningMessage), 1000);
+}
+
+function clearWarningMessages() {
+    const questionContainer = document.getElementById("question-container");
+    const existingMessages = questionContainer.getElementsByClassName("message");
+    while (existingMessages[0]) {
+        existingMessages[0].parentNode.removeChild(existingMessages[0]);
+    }
 }
 
 function showMotivationalMessage() {
     const questionContainer = document.getElementById("question-container");
+    clearWarningMessages();
     const motivationalMessage = document.createElement("div");
     motivationalMessage.textContent = "Never give up! If you are trying to make your dreams come true, it doesn't matter how many times you try. If you don't give up, trust me, you are going to get it!";
-    motivationalMessage.classList.add("message");
+    motivationalMessage.classList.add("motivational-message");
     questionContainer.appendChild(motivationalMessage);
 }
 
 function showFinalMessage() {
     const questionContainer = document.getElementById("question-container");
-    questionContainer.innerHTML = "<p>Congratulations! You've completed the quiz.</p>";
+    questionContainer.innerHTML = `<h2>Your final score is ${score}!</h2>`;
 }

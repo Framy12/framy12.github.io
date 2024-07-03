@@ -8,6 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
 }
 
 .quiz-container {
@@ -20,6 +21,7 @@ body {
     text-align: center;
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
+    position: relative;
 }
 
 .quiz-container:hover {
@@ -82,7 +84,7 @@ body {
 
 .moving-button {
     position: absolute;
-    transition: left 0.5s ease, top 0.5s ease;
+    transition: left 0.3s ease, top 0.3s ease;
 }
 
 .message {
@@ -95,4 +97,11 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+.motivational-message {
+    font-size: 18px;
+    color: #27ae60;
+    margin-top: 20px;
+    animation: fadeIn 1s;
 }
