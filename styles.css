@@ -105,3 +105,14 @@ body {
     margin-top: 20px;
     animation: fadeIn 1s;
 }
+#final-image-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#final-image-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}

@@ -1,10 +1,10 @@
 const questions = [
     {
-        question: "What component is essential for processing data in a PC?",
+       question: "What is the first component you need to install when building a PC?",
         answers: [
-            { text: "CPU", correct: true },
-            { text: "GPU", correct: false },
-            { text: "RAM", correct: false }
+            { text: "Motherboard", correct: true },
+            { text: "Power Supply", correct: false },
+            { text: "Processor", correct: false }
         ]
     },
     {
@@ -16,11 +16,11 @@ const questions = [
         ]
     },
     {
-        question: "Which component is responsible for rendering graphics?",
+         question: "What do you use to type on a computer?",
         answers: [
-            { text: "GPU", correct: true },
-            { text: "CPU", correct: false },
-            { text: "Motherboard", correct: false }
+            { text: "Mouse", correct: false },
+            { text: "Keyboard", correct: true },
+            { text: "Printer", correct: false }
         ]
     },
     {
@@ -120,6 +120,7 @@ function setupTrickButton() {
             showMotivationalMessage();
             quizEnded = true; // Marcar el quiz como terminado
             clearQuestion(); // Limpiar las respuestas
+            showFinalImage(); // Mostrar la imagen final basada en el puntaje
         }
     };
 }
@@ -180,7 +181,23 @@ function showMotivationalMessage() {
     questionContainer.appendChild(motivationalMessage);
 }
 
+function showFinalImage() {
+    const finalImageContainer = document.getElementById("final-image-container");
+    const finalImage = document.createElement("img");
+
+    if (score >= 60) {
+        finalImage.src = "images/winner.png"; // Imagen para puntaje alto
+    } else if (score >= 30) {
+        finalImage.src = "images/goodjob.png"; // Imagen para puntaje medio
+    } else {
+        finalImage.src = "images/tryagain.png"; // Imagen para puntaje bajo
+    }
+
+    finalImageContainer.appendChild(finalImage);
+}
+
 function showFinalMessage() {
     const questionContainer = document.getElementById("question-container");
     questionContainer.innerHTML = `<h2>Your final score is ${score}!</h2>`;
+    showFinalImage();
 }
